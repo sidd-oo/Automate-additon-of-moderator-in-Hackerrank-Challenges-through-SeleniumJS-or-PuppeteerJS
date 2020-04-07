@@ -15,14 +15,18 @@ let userToAdd = process.argv[3];
     let pwd = credentials.pwd;
     let url = credentials.url;
 
-    console.log(url);
     //Opening the Hackerrank's url
     await driver.get(url);
     let usernameElement = await driver.findElement(sd.By.css('#input-1'));
     let passwordElement = await driver.findElement(sd.By.css('#input-2'));
+    
     //Passing of keys into username and password text fields
     await usernameElement.sendKeys(user);
     await passwordElement.sendKeys(pwd);
+    
+    //Trying to hit login button
+    let loginButtonElement = await driver.findElement(sd.By.css('.auth-button'));
+    await loginButtonElement.click();
 
     
 
