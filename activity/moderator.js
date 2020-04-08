@@ -7,9 +7,9 @@ let driver = builder.forBrowser('chrome').build();
 let cfile = process.argv[2];
 let userToAdd = process.argv[3];
 
+//IIFE - Immedietly invoked function execution
 (async function () {
     try {
-
         //This prevents from getting immediate error. It waits till the whole pages loads.
         //It identify performance issues and finds when a webpage takes too much time to load and catch it in your test.
         //ImplicitWait ::: Using Implicit Wait, we can tell WebDriver to wait for a certain amount of time when trying to
@@ -45,6 +45,12 @@ let userToAdd = process.argv[3];
         let admistrationElement = (await driver).findElement(sd.By.css("a[data-analytics=NavBarProfileDropDownAdministration]"));
         let admistrationElementurl = await admistrationElement.getAttribute("href");
         await driver.get(admistrationElementurl);
+
+        //Getting into manage challenges tab
+        let manageTabsElement = await driver.findElements(sd.By.css(".nav-tabs.nav.admin-tabbed-nav li"));
+        await manageTabsElement[1].click();
+        let currenturl = await driver.getCurrentUrl();
+
 
 
     } catch (err) {
