@@ -42,18 +42,68 @@ let userToAdd = process.argv[3];
         await loginButtonElement.click();
 
         //Extracting the href of Admistration page from top-right dropdown menu
-        let admistrationElement = (await driver).findElement(sd.By.css("a[data-analytics=NavBarProfileDropDownAdministration]"));
+        let admistrationElement = await driver.findElement(sd.By.css("a[data-analytics=NavBarProfileDropDownAdministration]"));
         let admistrationElementurl = await admistrationElement.getAttribute("href");
         await driver.get(admistrationElementurl);
 
         //Getting into manage challenges tab
-        let manageTabsElement = await driver.findElements(sd.By.css(".nav-tabs.nav.admin-tabbed-nav li"));
-        await manageTabsElement[1].click();
+        let manageTabsElement = await driver.findElement(sd.By.css(".nav-tabs.nav.admin-tabbed-nav li a[href='/administration/challenges']"));
+        let manageTabsElementURL = await manageTabsElement.getAttribute('href');
+        await driver.get(manageTabsElementURL);
         let currenturl = await driver.getCurrentUrl();
 
-
-
+        //Check whether the next question exits or not: If next question exist we will proceed or if not exist we will return undefined and quit handling the question.
+        let questionIndex = 0;
+        let questionElement = await getQuestionElement(currenturl, questionIndex);
+        while (questionElement !== undefined) {
+            await handleQuestion(questionElement);
+            questionIndex++;
+            questionElement = await getQuestionElement(currenturl, questionIndex);
+        }
     } catch (err) {
         console.log(err);
     }
 })();
+
+//Get Question Element
+async function getQuestionElement(currenturl, questionIndex) {
+
+    (await driver).get(currenturl);
+    //Finding the PageIndex and questionIndex on the the current page
+    let pageIndex = parseInt(questionIndex / 10);
+    questionIndex = questionIndex % 10;
+
+    //Finding nextpageButtonElement : Navigating through the pages to reach the questionElement
+    let paginationButtons = await driver.findElements(sd.By.css(".pagination li"));
+    let nextPageButton = paginationButtons[paginationButtons.length - 2];
+    let classOnNextPageButton = await nextPageButton.getAttribute("class");
+
+    //Clicking the NextPage Button to reach the Question Page
+    for (let i = 0; i < pageIndex; i++) {
+        if (classOnNextPage !== "disabled") {
+            //Clicking nextPage Button
+            await nextPageButton.click();
+            // Finding current page nextpageButtonElement and classOnNextPage
+            paginationButtons = await driver.findElements(sd.By.css(".pagination li"));
+            nextPageButton = paginationButtons[paginationButtons.length - 2];
+            classOnNextPageButton = await nextPageButton.getAttribute("class");
+        } else {
+            return undefined;
+        }
+    }
+
+    //Finding the question element
+    let questionElements = await driver.findElements(sd.By.css(".backbone.block-center"));
+    if (questionIndex < questionElements.length) {
+        return questionElements[questionIndex];
+    } else {
+        return undefined;
+    }
+
+}
+
+//Handle Question to add the moderator
+async function handleQuestion(questionElement) {
+    console.log(questionElement);
+    await questionElement.click();
+}
