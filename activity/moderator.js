@@ -104,6 +104,27 @@ async function getQuestionElement(currenturl, questionIndex) {
 
 //Handle Question to add the moderator
 async function handleQuestion(questionElement) {
-    console.log(questionElement);
+    let questionurl = await questionElement.getAttribute('href');
     await questionElement.click();
+
+    //Waiting till the last tag to load
+    await driver.wait(sd.until.elementLocated(sd.By.css('span.tag')));
+    //Finding and navigating to the moderatorTab
+    let moderatorTab = await driver.findElement(sd.By.css('li[data-tab=moderators]'));
+    await moderatorTab.click();
+
+    //Finding the moderatorTextBox Element and sending the keys
+    let moderatorTextBox = (await driver).findElement(sd.By.css('#moderator'));
+    await moderatorTextBox.sendKeys(userToAdd);
+    console.log("*********************Enter***************************8")
+    await moderatorTextBox.sendKeys(sd.Key.ENTER);
+
+    //Saving the changes done
+    console.log("*********************Save button**************************")
+    let saveButton = (await driver).findElement(sd.By.css('.save-challenge'));
+    console.log("*********************Save button click**************************")
+    (await saveButton).click();
+    console.log("*********************Save button clicked**************************")
+    
+
 }
